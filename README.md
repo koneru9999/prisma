@@ -321,3 +321,17 @@ Prisma 2 splits up Prisma's core functionality into 2 standalone tools:
 Photon and Lift are currently in Preview! Get started with the [tutorial](https://github.com/prisma/prisma2/blob/master/docs/tutorial.md) or some ready-to-run [examples](https://github.com/prisma/prisma-examples/tree/prisma2).
 
 You can track the progress of Prisma 2 on [**isprisma2ready.com**](https://www.isprisma2ready.com) or follow the development of the [technical specification](https://github.com/prisma/specs).
+
+
+# CUSTOM
+build needs to be in the `./server` folder.
+
+```shell 
+$ cd server
+$
+$ BRANCH=local COMMIT_SHA=local CLUSTER_VERSION=1.34.10 sbt docker
+$
+$ docker image tag prismagraphql/prisma-prod:latest amndatasolutionsgmbh/prisma-prod:1.34.10-patch<number>
+$
+$ docker push amndatasolutionsgmbh/prisma-prod:1.34.10-patch<patchnumber>
+```

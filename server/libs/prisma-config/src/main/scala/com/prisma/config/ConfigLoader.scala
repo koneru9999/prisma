@@ -139,6 +139,7 @@ object ConfigLoader {
         user = "",
         password = None,
         connectionLimit = None,
+        connectionTimeout = 60000,
         pooled = None,
         database = database,
         schema = None,
@@ -151,21 +152,22 @@ object ConfigLoader {
 
     } else {
 
-      val dbActive   = extractBooleanOpt("migrations", db).orElse(extractBooleanOpt("active", db))
-      val uriString  = extractString("uri", db)
-      val connLimit  = extractIntOpt("connectionLimit", db)
-      val pooled     = extractBooleanOpt("pooled", db)
-      val schema     = extractStringOpt("schema", db)
-      val mgmtSchema = extractStringOpt("managementSchema", db)
-      val uri        = Url.parse(uriString)(UriConfig(decoder = NoopDecoder))
-      val dbHost     = uri.hostOption.get.value
-      val dbUser     = uri.user.get
-      val dbPass     = uri.password
-      val dbPort     = uri.port.getOrElse(5432) // FIXME: how could we not hardcode the postgres port
-      val database   = uri.path.toAbsolute.parts.headOption
-      val ssl        = uri.query.paramMap.get("ssl").flatMap(_.headOption).map(_ == "1")
-      val rawAccess  = extractBooleanOpt("rawAccess", db)
-      val queueSize  = extractIntOpt("queueSize", db)
+      val dbActive    = extractBooleanOpt("migrations", db).orElse(extractBooleanOpt("active", db))
+      val uriString   = extractString("uri", db)
+      val connLimit   = extractIntOpt("connectionLimit", db)
+      val connTimeout = extractIntOpt("connectionTimeout", db)
+      val pooled      = extractBooleanOpt("pooled", db)
+      val schema      = extractStringOpt("schema", db)
+      val mgmtSchema  = extractStringOpt("managementSchema", db)
+      val uri         = Url.parse(uriString)(UriConfig(decoder = NoopDecoder))
+      val dbHost      = uri.hostOption.get.value
+      val dbUser      = uri.user.get
+      val dbPass      = uri.password
+      val dbPort      = uri.port.getOrElse(5432) // FIXME: how could we not hardcode the postgres port
+      val database    = uri.path.toAbsolute.parts.headOption
+      val ssl         = uri.query.paramMap.get("ssl").flatMap(_.headOption).map(_ == "1")
+      val rawAccess   = extractBooleanOpt("rawAccess", db)
+      val queueSize   = extractIntOpt("queueSize", db)
 
       if (schema.isDefined && database.isDefined && dbConnector != "postgres")
         throw InvalidConfiguration("Only Postgres connectors are allowed to configure schema and database. For others please use database.")
@@ -183,6 +185,7 @@ object ConfigLoader {
         user = dbUser,
         password = dbPass,
         connectionLimit = connLimit,
+        connectionTimeout = connTimeout.getOrElse(60000),
         pooled = pooled,
         database = database,
         schema = schema,
@@ -202,6 +205,7 @@ object ConfigLoader {
     val dbUser      = extractString("user", db)
     val dbPass      = extractStringOpt("password", db)
     val connLimit   = extractIntOpt("connectionLimit", db)
+    val connTimeout = extractIntOpt("connectionTimeout", db)
     val mgmtSchema  = extractStringOpt("managementSchema", db)
     val pooled      = extractBooleanOpt("pooled", db)
     val database    = extractStringOpt("database", db)
@@ -248,6 +252,7 @@ object ConfigLoader {
       user = dbUser,
       password = dbPass,
       connectionLimit = connLimit,
+      connectionTimeout = connTimeout.getOrElse(60000),
       pooled = pooled,
       database = database,
       schema = schema,
@@ -268,6 +273,7 @@ object ConfigLoader {
       user: String,
       password: Option[String],
       connectionLimit: Option[Int],
+      connectionTimeout: Int,
       pooled: Option[Boolean],
       database: Option[String],
       schema: Option[String],
@@ -292,7 +298,8 @@ object ConfigLoader {
       ssl = ssl.getOrElse(false),
       rawAccess = rawAccess.getOrElse(false),
       uri = uri,
-      queueSize = queueSize
+      queueSize = queueSize,
+      connectionTimeout = connectionTimeout,
     )
     validateDatabaseConfig(config)
   }
@@ -389,7 +396,8 @@ case class DatabaseConfig(
     ssl: Boolean,
     rawAccess: Boolean,
     uri: String,
-    queueSize: Option[Int]
+    queueSize: Option[Int],
+    connectionTimeout: Int,
 ) {
   def queueSizeLimitOrDefault = queueSize.getOrElse(1000)
 }

@@ -312,8 +312,8 @@ lazy val messageBus = libProject("message-bus")
     akka,
     specs2,
     akkaTestKit,
-    playJson
-  ))
+    playJson) ++ awsSQS
+  )
 
 lazy val graphQlClient = libProject("graphql-client")
   .settings(commonSettings: _*)

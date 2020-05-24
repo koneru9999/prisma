@@ -8,8 +8,8 @@ object Dependencies {
     */
   object v {
     val sangria       = "1.3.3"
-    val akka          = "2.5.12"
-    val akkaHttp      = "10.1.0"
+    val akka          = "2.5.31"
+    val akkaHttp      = "10.1.11"
     val joda          = "2.9.4"
     val jodaConvert   = "1.7"
     val cuid          = "0.1.1"
@@ -111,6 +111,12 @@ object Dependencies {
   val ujson = Seq(
     "com.lihaoyi" %% "ujson-circe" % "0.6.6",
     "com.lihaoyi" %% "ujson-play"  % "0.6.6"
+  )
+
+  val awsSQS  = Seq(
+    "com.lightbend.akka"         %% "akka-stream-alpakka-sqs"       % "2.0.0",
+    akkaStream,
+    akkaHttp
   )
 
   lazy val common: Seq[ModuleID] = Seq(

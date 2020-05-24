@@ -1,4 +1,4 @@
-package com.prisma.messagebus.queue.inmemory
+package com.prisma.messagebus.queue.sqs
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.stream.ActorMaterializer
@@ -7,9 +7,10 @@ import com.prisma.errors.ErrorReporter
 import com.prisma.messagebus.Conversions.ByteMarshaller
 import com.prisma.messagebus.QueueConsumer.ConsumeFn
 import com.prisma.messagebus.queue.inmemory.InMemoryQueueingMessages._
+import com.prisma.messagebus.queue.inmemory.{RouterActor, WorkerActor}
 import com.prisma.messagebus.queue.{BackoffStrategy, LinearBackoff}
 import com.prisma.messagebus.{ConsumerRef, Queue}
-import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider, EnvironmentVariableCredentialsProvider}
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 
@@ -22,9 +23,11 @@ import scala.concurrent.duration._
   * This is not yet a production ready implementation as robustness features for redelivery and ensuring
   * that an item is worked off are missing.
   */
-case class SQSQueue[T](queueUrl: String,
-                       region: Region = Region.EU_CENTRAL_1,
-                       backoff: BackoffStrategy = LinearBackoff(5.seconds))(
+case class SQSQueue[T](
+  queueUrl: String,
+  region: Region = Region.EU_CENTRAL_1,
+  backoff: BackoffStrategy = LinearBackoff(5.seconds)
+)(
   implicit reporter: ErrorReporter,
   marshaller: ByteMarshaller[T],
   materializer: ActorMaterializer,

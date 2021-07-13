@@ -25,7 +25,7 @@
     "@types/prettier": "^1.13.2",
     "debug": "^4.1.0",
     "flow-bin": "^0.87.0",
-    "graphql-tag": "^2.10.0",
+    "graphql-tag": "^2.12.4",
     "http-link-dataloader": "^0.1.6",
     "jsonwebtoken": "^8.3.0",
     "lodash.flatten": "^4.4.0",
